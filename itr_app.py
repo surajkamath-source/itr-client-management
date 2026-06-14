@@ -82,14 +82,15 @@ menu = st.sidebar.radio(
     "Navigation",
     [
         "Dashboard",
+        "Work In Progress",
         "Client List",
         "Edit Client",
         "Add Client",
         "Follow-Ups",
-        "Update History",
         "Billing",
         "Receipt History",
-        "Fee Recovery"
+        "Fee Recovery",
+        "Update History"
     ]
 )
 
@@ -219,6 +220,70 @@ if menu == "Dashboard":
     f3.metric(
         "⚠️ Outstanding",
         f"₹{total_due:,.0f}"
+    )
+
+    st.divider()
+    
+    st.subheader("📊 Active Work Summary")
+
+    wip_df = df[
+        ~df["Status of Work"].isin(
+            [
+                "Not Started",
+                "Completed",
+                "Inactive"
+            ]
+        )
+    ]
+    
+    status_summary = (
+        wip_df.groupby(
+            "Status of Work"
+        )
+        .size()
+        .reset_index(name="Count")
+        .sort_values(
+            "Count",
+            ascending=False
+        )
+    )
+    
+    st.dataframe(
+        status_summary,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.divider()
+    st.subheader("📌 Work In Progress")
+    
+    wip_status_exclude = [
+        "Not Started",
+        "Completed",
+        "Inactive"
+    ]
+    
+    wip_df = df[
+        ~df["Status of Work"].isin(
+            wip_status_exclude
+        )
+    ]
+    
+    st.metric(
+        "Active Cases",
+        len(wip_df)
+    )
+    
+    st.dataframe(
+        wip_df[
+            [
+                "Client Name",
+                "Assigned To",
+                "Status of Work",
+                "Next Follow Up"
+            ]
+        ],
+        use_container_width=True
     )
 
 # =====================
@@ -992,3 +1057,31 @@ elif menu == "Billing":
         )
 
         st.rerun()
+    
+# =====================
+# BILLING
+# =====================
+
+elif menu == "Work In Progress":
+
+    st.header("📌 Work In Progress")
+
+    wip_df = df[
+        ~df["Status of Work"].isin(
+            [
+                "Not Started",
+                "Completed",
+                "Inactive"
+            ]
+        )
+    ]
+
+    st.metric(
+        "Total Active Cases",
+        len(wip_df)
+    )
+
+    st.dataframe(
+        wip_df,
+        use_container_width=True
+    )
