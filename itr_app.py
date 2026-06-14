@@ -89,7 +89,7 @@ menu = st.sidebar.radio(
         "Follow-Ups",
         "Update History",
         "Billing",
-        "Receipt History"
+        "Receipt History",
         "Fee Recovery"
     ]
 )
