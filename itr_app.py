@@ -257,286 +257,271 @@ elif menu == "Client List":
 
 
 # =====================
+
 # EDIT CLIENT
+
 # =====================
 
 elif menu == "Edit Client":
 
-    st.header("✏️ Edit Client")
+```
+st.header("✏️ Edit Client")
 
-    client = st.selectbox(
-        "Select Client",
-        sorted(df["Client Name"].dropna().unique())
+client = st.selectbox(
+    "Select Client",
+    sorted(df["Client Name"].dropna().unique())
+)
+
+row_index = df[
+    df["Client Name"] == client
+].index[0]
+
+row = df.loc[row_index]
+
+# =====================
+# CLIENT PROFILE
+# =====================
+
+st.subheader("📋 Client Profile")
+
+c1, c2, c3 = st.columns(3)
+
+with c1:
+    st.write("**PAN:**", row.get("PAN", ""))
+    st.write("**Mobile:**", row.get("Mobile", ""))
+    st.write("**Email:**", row.get("Email", ""))
+
+with c2:
+    st.write("**Assigned To:**", row.get("Assigned To", ""))
+    st.write("**Status:**", row.get("Status of Work", ""))
+    st.write("**Client Source:**", row.get("Client Source", ""))
+
+with c3:
+    st.write(
+        "**Fee Proposed:** ₹",
+        row.get("Fee Proposed FY 2025 26 (₹)", 0)
     )
 
-    row_index = df[
-        df["Client Name"] == client
-    ].index[0]
+    st.write(
+        "**Fee Received:** ₹",
+        row.get("Fee Reciept FY 2025 26 (₹)", 0)
+    )
 
-    row = df.loc[row_index]
+    st.write(
+        "**Amount Due:** ₹",
+        row.get("Amount Due", 0)
+    )
 
-    # =====================
-    # CLIENT PROFILE
-    # =====================
+st.divider()
 
-    st.subheader("📋 Client Profile")
+# =====================
+# EDIT FORM
+# =====================
 
-    c1, c2, c3 = st.columns(3)
+status_options = [
+    "Documents Awaited",
+    "Documents Received",
+    "Under Preparation",
+    "Query Raised",
+    "Ready for Filing",
+    "Filed",
+    "e-Verified",
+    "Bill Pending",
+    "Completed",
+    "Inactive"
+]
 
-    with c1:
-        st.write("**PAN:**", row.get("PAN", ""))
-        st.write("**Mobile:**", row.get("Mobile", ""))
-        st.write("**Email:**", row.get("Email", ""))
+assigned_options = [
+    "Suraj",
+    "Sujith",
+    "Vandana",
+    "Vidya",
+    "Srinivas"
+]
 
-    with c2:
-        st.write("**Assigned To:**", row.get("Assigned To", ""))
-        st.write("**Status:**", row.get("Status of Work", ""))
-        st.write("**Client Source:**", row.get("Client Source", ""))
+current_status = str(
+    row.get("Status of Work", "")
+)
 
-    with c3:
-        st.write(
-            "**Fee Proposed:** ₹",
+status_index = (
+    status_options.index(current_status)
+    if current_status in status_options
+    else 0
+)
+
+new_status = st.selectbox(
+    "Status",
+    status_options,
+    index=status_index
+)
+
+current_assigned = str(
+    row.get("Assigned To", "Suraj")
+)
+
+assigned_index = (
+    assigned_options.index(current_assigned)
+    if current_assigned in assigned_options
+    else 0
+)
+
+assigned_to = st.selectbox(
+    "Assigned To",
+    assigned_options,
+    index=assigned_index
+)
+
+proposed_fee = st.number_input(
+    "Proposed Fee",
+    min_value=0.0,
+    value=float(
+        pd.to_numeric(
             row.get(
                 "Fee Proposed FY 2025 26 (₹)",
                 0
-            )
-        )
-
-        st.write(
-            "**Fee Received:** ₹",
-            row.get(
-                "Fee Reciept FY 2025 26 (₹)",
-                0
-            )
-        )
-
-        st.write(
-            "**Amount Due:** ₹",
-            row.get(
-                "Amount Due",
-                0
-            )
-        )
-
-    st.divider()
-
-    # =====================
-    # EDIT FORM
-    # =====================
-
-    status_options = [
-        "Documents Awaited",
-        "Documents Received",
-        "Under Preparation",
-        "Query Raised",
-        "Ready for Filing",
-        "Filed",
-        "e-Verified",
-        "Bill Pending",
-        "Completed",
-        "Inactive"
-    ]
-
-    assigned_options = [
-        "Suraj",
-        "Sujith",
-        "Vandana",
-        "Vidya",
-        "Srinivas"
-    ]
-
-    current_status = str(
-        row.get(
-            "Status of Work",
-            ""
+            ),
+            errors="coerce"
         )
     )
+)
 
-    status_index = (
-        status_options.index(current_status)
-        if current_status in status_options
-        else 0
-    )
+# =====================
+# FOLLOW UP DATE
+# =====================
 
-    new_status = st.selectbox(
-        "Status",
-        status_options,
-        index=status_index
-    )
+current_followup = pd.to_datetime(
+    row.get("Next Follow Up", ""),
+    errors="coerce",
+    dayfirst=True
+)
 
-    current_assigned = str(
-        row.get(
-            "Assigned To",
-            "Suraj"
-        )
-    )
+if pd.isna(current_followup):
+    current_followup = date.today()
+else:
+    current_followup = current_followup.date()
 
-    assigned_index = (
-        assigned_options.index(current_assigned)
-        if current_assigned in assigned_options
-        else 0
-    )
+next_followup = st.date_input(
+    "Next Follow Up",
+    value=current_followup
+)
 
-    assigned_to = st.selectbox(
-        "Assigned To",
-        assigned_options,
-        index=assigned_index
-    )
-
-    proposed_fee = st.number_input(
-        "Proposed Fee",
-        min_value=0.0,
-        value=float(
-            pd.to_numeric(
-                row.get(
-                    "Fee Proposed FY 2025 26 (₹)",
-                    0
-                ),
-                errors="coerce"
-            )
-            if str(
-                row.get(
-                    "Fee Proposed FY 2025 26 (₹)",
-                    ""
-                )
-            ).strip() != ""
-            else 0
-        )
-    )
-
-    # Next Follow Up
-
-    next_followup = st.date_input(
-        "Next Follow Up",
-        value=date.today()
-    )
-
-    remarks = st.text_area(
-        "Remarks",
-        value=str(
-            row.get(
-                "Brief Status of Work",
-                ""
-            )
-        ),
-        height=120
-    )
-
-    # =====================
-    # OLD VALUES
-    # =====================
-
-    old_status = str(
-        row.get(
-            "Status of Work",
-            ""
-        )
-    )
-
-    old_assigned = str(
-        row.get(
-            "Assigned To",
-            ""
-        )
-    )
-
-    old_remarks = str(
+remarks = st.text_area(
+    "Remarks",
+    value=str(
         row.get(
             "Brief Status of Work",
             ""
         )
-    )
+    ),
+    height=120
+)
 
-    # =====================
-    # SAVE
-    # =====================
+# =====================
+# OLD VALUES
+# =====================
 
-    if st.button("💾 Save Changes"):
+old_status = str(
+    row.get("Status of Work", "")
+)
 
-        df.loc[
-            row_index,
-            "Status of Work"
-        ] = new_status
+old_assigned = str(
+    row.get("Assigned To", "")
+)
 
-        df.loc[
-            row_index,
-            "Assigned To"
-        ] = assigned_to
+old_remarks = str(
+    row.get("Brief Status of Work", "")
+)
 
-        df.loc[
-            row_index,
-            "Brief Status of Work"
-        ] = remarks
+# =====================
+# SAVE
+# =====================
 
-        df.loc[
-            row_index,
-            "Fee Proposed FY 2025 26 (₹)"
-        ] = proposed_fee
+if st.button("💾 Save Changes"):
 
-        # Follow Up
+    df.at[
+        row_index,
+        "Status of Work"
+    ] = str(new_status)
 
-        if new_status in [
-            "Filed",
-            "e-Verified",
-            "Completed",
-            "Inactive"
-        ]:
+    df.at[
+        row_index,
+        "Assigned To"
+    ] = str(assigned_to)
 
-        df.loc[
+    df.at[
+        row_index,
+        "Brief Status of Work"
+    ] = str(remarks)
+
+    df.at[
+        row_index,
+        "Fee Proposed FY 2025 26 (₹)"
+    ] = float(proposed_fee)
+
+    # Auto clear follow-up for completed cases
+
+    if new_status in [
+        "Filed",
+        "e-Verified",
+        "Completed",
+        "Inactive"
+    ]:
+
+        df.at[
             row_index,
             "Next Follow Up"
         ] = ""
 
     else:
 
-        df.loc[
+        df.at[
             row_index,
             "Next Follow Up"
         ] = next_followup.strftime(
             "%d-%m-%Y"
         )
 
-        save_dataframe(df)
+    save_dataframe(df)
 
-        if old_status != new_status:
+    if old_status != new_status:
 
-            add_history(
-                logged_user,
-                "",
-                client,
-                "Status",
-                old_status,
-                new_status
-            )
-
-        if old_assigned != assigned_to:
-
-            add_history(
-                logged_user,
-                "",
-                client,
-                "Assigned To",
-                old_assigned,
-                assigned_to
-            )
-
-        if old_remarks != remarks:
-
-            add_history(
-                logged_user,
-                "",
-                client,
-                "Remarks",
-                old_remarks,
-                remarks
-            )
-
-        st.success(
-            "✅ Client Updated Successfully"
+        add_history(
+            logged_user,
+            "",
+            client,
+            "Status",
+            old_status,
+            new_status
         )
 
-        st.rerun()
-        
+    if old_assigned != assigned_to:
+
+        add_history(
+            logged_user,
+            "",
+            client,
+            "Assigned To",
+            old_assigned,
+            assigned_to
+        )
+
+    if old_remarks != remarks:
+
+        add_history(
+            logged_user,
+            "",
+            client,
+            "Remarks",
+            old_remarks,
+            remarks
+        )
+
+    st.success(
+        "✅ Client Updated Successfully"
+    )
+
+    st.rerun()
+    
 # =====================
 # ADD CLIENT
 # =====================
