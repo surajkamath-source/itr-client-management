@@ -264,7 +264,6 @@ elif menu == "Client List":
 
 elif menu == "Edit Client":
 
-```
 st.header("✏️ Edit Client")
 
 client = st.selectbox(
