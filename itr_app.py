@@ -482,19 +482,19 @@ elif menu == "Edit Client":
             "Inactive"
         ]:
 
-            df.loc[
-                row_index,
-                "Next Follow Up"
-            ] = ""
+        df.loc[
+            row_index,
+            "Next Follow Up"
+        ] = ""
 
-        else:
+    else:
 
-            df.loc[
-                row_index,
-                "Next Follow Up"
-            ] = next_followup.strftime(
-                "%d-%m-%Y"
-            )
+        df.loc[
+            row_index,
+            "Next Follow Up"
+        ] = next_followup.strftime(
+            "%d-%m-%Y"
+        )
 
         save_dataframe(df)
 
