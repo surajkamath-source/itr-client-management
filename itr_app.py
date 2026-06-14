@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import date
-from datetime import timedelta
+from datetime import date, timedelta
 from google_sheet_functions import (
     load_client_data,
     save_dataframe,
@@ -28,7 +27,7 @@ def generate_invoice_pdf(
         pdf.drawString(
             100,
             800,
-            "SKCS Tax Consultancy"
+            "S K Consultancy Services"
         )
     
         pdf.drawString(
@@ -653,13 +652,16 @@ elif menu == "Follow-Ups":
 
         temp["Next Follow Up"] = pd.to_datetime(
             temp["Next Follow Up"],
-            errors="coerce"
+            errors="coerce",
+            dayfirst=True
         )
 
         due = temp[
+            (temp["Next Follow Up"].notna())
+            &
             (temp["Next Follow Up"].dt.date <= date.today())
             &
-            (~temp["Status of Work"].isin(
+            (~temp["Status of Work"].astype(str).isin(
                 [
                     "Filed",
                     "e-Verified",
@@ -674,68 +676,88 @@ elif menu == "Follow-Ups":
             len(due)
         )
 
-        st.dataframe(
-            due,
-            use_container_width=True
-        )
-
         if len(due) > 0:
 
-            remove_client = st.selectbox(
-                "Select Client to Remove Follow-Up",
+            st.dataframe(
+                due[
+                    [
+                        c for c in [
+                            "Client Name",
+                            "Mobile",
+                            "Assigned To",
+                            "Status of Work",
+                            "Next Follow Up"
+                        ]
+                        if c in due.columns
+                    ]
+                ],
+                use_container_width=True
+            )
+
+            selected_client = st.selectbox(
+                "Select Client",
                 due["Client Name"].tolist()
             )
 
-            if st.button("🗑️ Remove Follow Up"):
+            c1, c2 = st.columns(2)
 
-                remove_index = df[
-                    df["Client Name"] == remove_client
-                ].index[0]
+            with c1:
 
-                next_date = (
-                    date.today() + timedelta(days=7)
-                ).strftime("%d-%m-%Y")
-                df.at[
-                    remove_index,
-                    "Next Follow Up"
-                ] = next_date
+                if st.button("🗑️ Remove Follow Up"):
 
-                save_dataframe(df)
+                    remove_index = df[
+                        df["Client Name"] == selected_client
+                    ].index[0]
 
-                st.success(
-                    f"Follow-up removed for {remove_client}"
-                )
+                    df.at[
+                        remove_index,
+                        "Next Follow Up"
+                    ] = ""
 
-                st.rerun()
+                    save_dataframe(df)
+
+                    st.success(
+                        f"Follow-up removed for {selected_client}"
+                    )
+
+                    st.rerun()
+
+            with c2:
+
+                if st.button("⏰ Snooze 7 Days"):
+
+                    remove_index = df[
+                        df["Client Name"] == selected_client
+                    ].index[0]
+
+                    new_date = (
+                        date.today() + timedelta(days=7)
+                    ).strftime("%d-%m-%Y")
+
+                    df.at[
+                        remove_index,
+                        "Next Follow Up"
+                    ] = new_date
+
+                    save_dataframe(df)
+
+                    st.success(
+                        f"Follow-up postponed to {new_date}"
+                    )
+
+                    st.rerun()
+
+        else:
+
+            st.info(
+                "No follow-ups due today."
+            )
 
     else:
 
-        st.info(
-            "Next Follow Up column not found."
+        st.warning(
+            "Column 'Next Follow Up' not found."
         )
-
-# =====================
-# Snooze Follow-Up
-# =====================
-
-    if st.button("⏰ Snooze 7 Days"):
-
-        remove_index = df[
-            df["Client Name"] == remove_client
-        ].index[0]
-
-        df.at[
-            remove_index,
-            "Next Follow Up"
-        ] = (date.today() + timedelta(days=7)).strftime("%Y-%m-%d")
-
-        save_dataframe(df)
-
-        st.success(
-            "Follow-up postponed by 7 days"
-        )
-
-        st.rerun()
 
 # =====================
 # Update History
