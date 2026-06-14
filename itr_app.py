@@ -1,4 +1,4 @@
-import streamlit as st
+1import streamlit as st
 import pandas as pd
 from datetime import date
 from datetime import timedelta
@@ -847,21 +847,21 @@ elif menu == "Billing":
         )
 
     st.info(
-        f"Invoice Number : {invoice_no}"
-    )
-
-    invoice_pdf = generate_invoice_pdf(
-    client,
-    invoice_no,
-    proposed
-)
-
-st.download_button(
-    "📄 Download Invoice",
-    invoice_pdf,
-    file_name=f"{invoice_no}.pdf"
-)
+            f"Invoice Number : {invoice_no}"
+        )
     
+        invoice_pdf = generate_invoice_pdf(
+        client,
+        invoice_no,
+        proposed
+    )
+    
+    st.download_button(
+        "📄 Download Invoice",
+        invoice_pdf,
+        file_name=f"{invoice_no}.pdf"
+    )
+        
     proposed = float(
         pd.to_numeric(
             row.get(
