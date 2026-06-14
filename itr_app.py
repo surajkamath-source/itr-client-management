@@ -670,7 +670,7 @@ elif menu == "Follow-Ups":
             "Next Follow Up column not found."
         )
 
-   # =====================
+# =====================
 # Snooze Follow-Up
 # =====================
 
