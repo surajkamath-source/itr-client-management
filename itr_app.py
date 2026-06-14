@@ -848,10 +848,20 @@ elif menu == "Billing":
         )
 
     st.info(
-            f"Invoice Number : {invoice_no}"
-        )
+        f"Invoice Number : {invoice_no}"
+    )
     
-        invoice_pdf = generate_invoice_pdf(
+    proposed = float(
+        pd.to_numeric(
+            row.get(
+                "Fee Proposed FY 2025 26 (₹)",
+                0
+            ),
+            errors="coerce"
+        )
+    )
+    
+    invoice_pdf = generate_invoice_pdf(
         client,
         invoice_no,
         proposed
@@ -862,17 +872,6 @@ elif menu == "Billing":
         invoice_pdf,
         file_name=f"{invoice_no}.pdf"
     )
-        
-    proposed = float(
-        pd.to_numeric(
-            row.get(
-                "Fee Proposed FY 2025 26 (₹)",
-                0
-            ),
-            errors="coerce"
-        )
-    )
-
     received = float(
         pd.to_numeric(
             row.get(
