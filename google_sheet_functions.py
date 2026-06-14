@@ -120,3 +120,51 @@ def load_history_data():
     data = sheet.get_all_records()
 
     return pd.DataFrame(data)
+
+# ======================
+# Receipt HISTORY
+# ======================
+
+RECEIPT_SHEET = "Receipt_History"
+
+
+def get_receipt_sheet():
+    return client.open(
+        SPREADSHEET_NAME
+    ).worksheet(
+        RECEIPT_SHEET
+    )
+
+
+def add_receipt_history(
+    client_id,
+    client_name,
+    invoice_no,
+    amount,
+    mode,
+    user,
+    remarks=""
+):
+
+    sheet = get_receipt_sheet()
+
+    sheet.append_row([
+        datetime.now().strftime("%d-%m-%Y"),
+        datetime.now().strftime("%H:%M:%S"),
+        client_id,
+        client_name,
+        invoice_no,
+        amount,
+        mode,
+        user,
+        remarks
+    ])
+
+
+def load_receipt_history():
+
+    sheet = get_receipt_sheet()
+
+    return pd.DataFrame(
+        sheet.get_all_records()
+    )
