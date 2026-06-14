@@ -7,7 +7,9 @@ from google_sheet_functions import (
     save_dataframe,
     add_history,
     load_history_data,
-    add_client_row
+    add_client_row,
+    add_receipt_history,
+    load_receipt_history
 )
 
 st.set_page_config(
@@ -43,6 +45,7 @@ menu = st.sidebar.radio(
         "Add Client",
         "Follow-Ups",
         "Update History",
+        "Billing",
         "Fee Recovery"
     ]
 )
@@ -746,3 +749,164 @@ elif menu == "Fee Recovery":
         ],
         use_container_width=True
     )
+
+# =====================
+# BILLING
+# =====================
+
+elif menu == "Billing":
+
+    st.header("💰 Billing & Collections")
+
+    # Safe numeric conversion
+
+    if "Fee Proposed FY 2025 26 (₹)" not in df.columns:
+        df["Fee Proposed FY 2025 26 (₹)"] = 0
+
+    if "Fee Reciept FY 2025 26 (₹)" not in df.columns:
+        df["Fee Reciept FY 2025 26 (₹)"] = 0
+
+    if "Amount Due" not in df.columns:
+        df["Amount Due"] = 0
+
+    df["Fee Proposed FY 2025 26 (₹)"] = pd.to_numeric(
+        df["Fee Proposed FY 2025 26 (₹)"],
+        errors="coerce"
+    ).fillna(0)
+
+    df["Fee Reciept FY 2025 26 (₹)"] = pd.to_numeric(
+        df["Fee Reciept FY 2025 26 (₹)"],
+        errors="coerce"
+    ).fillna(0)
+
+    df["Amount Due"] = pd.to_numeric(
+        df["Amount Due"],
+        errors="coerce"
+    ).fillna(0)
+
+    total_proposed = df[
+        "Fee Proposed FY 2025 26 (₹)"
+    ].sum()
+
+    total_received = df[
+        "Fee Reciept FY 2025 26 (₹)"
+    ].sum()
+
+    total_due = df[
+        "Amount Due"
+    ].sum()
+
+    c1, c2, c3 = st.columns(3)
+
+    c1.metric(
+        "Proposed Fee",
+        f"₹{total_proposed:,.0f}"
+    )
+
+    c2.metric(
+        "Collected",
+        f"₹{total_received:,.0f}"
+    )
+
+    c3.metric(
+        "Outstanding",
+        f"₹{total_due:,.0f}"
+    )
+
+    st.divider()
+
+    outstanding_df = df[
+        df["Amount Due"] > 0
+    ]
+
+    st.subheader("Outstanding Clients")
+
+    st.dataframe(
+        outstanding_df[
+            [
+                "Client Name",
+                "Assigned To",
+                "Fee Proposed FY 2025 26 (₹)",
+                "Fee Reciept FY 2025 26 (₹)",
+                "Amount Due"
+            ]
+        ],
+        use_container_width=True
+    )
+
+    st.divider()
+
+    st.subheader("Record Collection")
+
+    client = st.selectbox(
+        "Select Client",
+        df["Client Name"]
+    )
+
+    row_index = df[
+        df["Client Name"] == client
+    ].index[0]
+
+    payment = st.number_input(
+        "Amount Received",
+        min_value=0.0,
+        step=100.0
+    )
+
+    if st.button("Save Payment"):
+
+        received = pd.to_numeric(
+            df.at[
+                row_index,
+                "Fee Reciept FY 2025 26 (₹)"
+            ],
+            errors="coerce"
+        )
+
+        proposed = pd.to_numeric(
+            df.at[
+                row_index,
+                "Fee Proposed FY 2025 26 (₹)"
+            ],
+            errors="coerce"
+        )
+
+        if pd.isna(received):
+            received = 0
+
+        if pd.isna(proposed):
+            proposed = 0
+
+        received += payment
+
+        due = proposed - received
+
+        if due < 0:
+            due = 0
+
+        df.at[
+            row_index,
+            "Fee Reciept FY 2025 26 (₹)"
+        ] = received
+
+        df.at[
+            row_index,
+            "Amount Due"
+        ] = due
+
+        save_dataframe(df)
+
+        add_history(
+            logged_user,
+            "",
+            client,
+            "Payment Received",
+            "",
+            str(payment)
+        )
+
+        st.success(
+            f"₹{payment:,.0f} recorded successfully"
+        )
+
+        st.rerun()
