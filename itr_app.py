@@ -11,48 +11,49 @@ from google_sheet_functions import (
     add_receipt_history,
     load_receipt_history
 )
+
 from reportlab.pdfgen import canvas
 from io import BytesIO
 
 def generate_invoice_pdf(
-    client_name,
-    invoice_no,
-    amount
-):
-
-    buffer = BytesIO()
-
-    pdf = canvas.Canvas(buffer)
-
-    pdf.drawString(
-        100,
-        800,
-        "SKCS Tax Consultancy"
-    )
-
-    pdf.drawString(
-        100,
-        770,
-        f"Invoice : {invoice_no}"
-    )
-
-    pdf.drawString(
-        100,
-        740,
-        f"Client : {client_name}"
-    )
-
-    pdf.drawString(
-        100,
-        710,
-        f"Amount : ₹{amount:,.0f}"
-    )
-
-    pdf.save()
-
-    buffer.seek(0)
-
-    return buffer
+        client_name,
+        invoice_no,
+        amount
+    ):
+    
+        buffer = BytesIO()
+    
+        pdf = canvas.Canvas(buffer)
+    
+        pdf.drawString(
+            100,
+            800,
+            "SKCS Tax Consultancy"
+        )
+    
+        pdf.drawString(
+            100,
+            770,
+            f"Invoice : {invoice_no}"
+        )
+    
+        pdf.drawString(
+            100,
+            740,
+            f"Client : {client_name}"
+        )
+    
+        pdf.drawString(
+            100,
+            710,
+            f"Amount : ₹{amount:,.0f}"
+        )
+    
+        pdf.save()
+    
+        buffer.seek(0)
+    
+        return buffer
 
 st.set_page_config(
     page_title="ITR Client Tracker",
