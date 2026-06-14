@@ -19,30 +19,17 @@ st.set_page_config(
 # LOGIN
 # =====================
 
-users = {
-    "Suraj":"1234",
-    "Sujith":"1234",
-    "Vandana":"1234",
-    "Vidya":"1234",
-    "Srinivas":"1234"
-}
-
-username = st.sidebar.text_input(
-    "Username"
-)
+username = st.sidebar.text_input("Username")
 
 password = st.sidebar.text_input(
     "Password",
     type="password"
 )
 
-if username not in users or \
-   users[username] != password:
+users = st.secrets["users"]
 
-    st.warning(
-        "Please Login"
-    )
-
+if username not in users or users[username] != password:
+    st.warning("Please Login")
     st.stop()
 
 logged_user = username
