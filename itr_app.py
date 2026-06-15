@@ -63,20 +63,34 @@ st.set_page_config(
 # LOGIN
 # =====================
 
-username = st.sidebar.text_input("Username")
+# 1. Initialize session state to track login status
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-password = st.sidebar.text_input(
-    "Password",
-    type="password"
-)
+# 2. Create a placeholder for the login form
+login_placeholder = st.empty()
 
-users = st.secrets["users"]
+if not st.session_state.logged_in:
+    with login_placeholder.container():
+        st.header("Login")
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        
+        if st.button("Login"):
+            users = st.secrets["users"]
+            if username in users and users[username] == password:
+                st.session_state.logged_in = True
+                st.session_state.username = username
+                # Clear the login form immediately
+                login_placeholder.empty()
+                st.rerun()
+            else:
+                st.error("Invalid username or password")
 
-if username not in users or users[username] != password:
-    st.warning("Please Login")
-    st.stop()
-
-logged_user = username
+# 3. Show content only after login
+if st.session_state.logged_in:
+    st.success(f"Welcome to CMS, {st.session_state.username}!")
+    
 
 menu = st.sidebar.radio(
     "Navigation",
