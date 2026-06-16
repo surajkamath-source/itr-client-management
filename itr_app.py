@@ -66,67 +66,43 @@ st.set_page_config(
 users = st.secrets["users"]
 
 if "logged_in" not in st.session_state:
-st.session_state.logged_in = False
+    st.session_state.logged_in = False
 
 if "logged_user" not in st.session_state:
-st.session_state.logged_user = ""
+    st.session_state.logged_user = ""
 
 if not st.session_state.logged_in:
+    st.title("🔐 SKCS Client Management System")
+    
+    st.markdown("### Please Login")
+    
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
 
-st.title("🔐 SKCS Client Management System")
-
-st.markdown(
-    "### Please Login"
-)
-
-username = st.text_input(
-    "Username"
-)
-
-password = st.text_input(
-    "Password",
-    type="password"
-)
-
-if st.button("🔑 Login"):
-
-    if (
-        username in users
-        and
-        users[username] == password
-    ):
-
-        st.session_state.logged_in = True
-        st.session_state.logged_user = username
-
-        st.rerun()
-
-    else:
-
-        st.error(
-            "Invalid Username or Password"
-        )
-
-st.stop()
-
-logged_user = st.session_state.logged_user
+    if st.button("🔑 Login"):
+        if username in users and users[username] == password:
+            st.session_state.logged_in = True
+            st.session_state.logged_user = username
+            st.rerun()
+        else:
+            st.error("Invalid Username or Password")
+    
+    # This stop ensures the rest of the app doesn't run if not logged in
+    st.stop()
 
 # =====================
 # SIDEBAR AFTER LOGIN
 # =====================
 
-st.sidebar.success(
-f"👤 {logged_user}"
-)
+# This part only runs if the user IS logged in
+logged_user = st.session_state.logged_user
 
-if st.sidebar.button(
-"🚪 Logout"
-):
+st.sidebar.success(f"👤 {logged_user}")
 
-st.session_state.logged_in = False
-st.session_state.logged_user = ""
-
-st.rerun()
+if st.sidebar.button("🚪 Logout"):
+    st.session_state.logged_in = False
+    st.session_state.logged_user = ""
+    st.rerun()
 
 menu = st.sidebar.radio(
     "Navigation",
