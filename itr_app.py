@@ -63,20 +63,70 @@ st.set_page_config(
 # LOGIN
 # =====================
 
-username = st.sidebar.text_input("Username")
+users = st.secrets["users"]
 
-password = st.sidebar.text_input(
+if "logged_in" not in st.session_state:
+st.session_state.logged_in = False
+
+if "logged_user" not in st.session_state:
+st.session_state.logged_user = ""
+
+if not st.session_state.logged_in:
+
+st.title("🔐 SKCS Client Management System")
+
+st.markdown(
+    "### Please Login"
+)
+
+username = st.text_input(
+    "Username"
+)
+
+password = st.text_input(
     "Password",
     type="password"
 )
 
-users = st.secrets["users"]
+if st.button("🔑 Login"):
 
-if username not in users or users[username] != password:
-    st.warning("Please Login")
-    st.stop()
+    if (
+        username in users
+        and
+        users[username] == password
+    ):
 
-logged_user = username
+        st.session_state.logged_in = True
+        st.session_state.logged_user = username
+
+        st.rerun()
+
+    else:
+
+        st.error(
+            "Invalid Username or Password"
+        )
+
+st.stop()
+
+logged_user = st.session_state.logged_user
+
+# =====================
+# SIDEBAR AFTER LOGIN
+# =====================
+
+st.sidebar.success(
+f"👤 {logged_user}"
+)
+
+if st.sidebar.button(
+"🚪 Logout"
+):
+
+st.session_state.logged_in = False
+st.session_state.logged_user = ""
+
+st.rerun()
 
 menu = st.sidebar.radio(
     "Navigation",
@@ -106,7 +156,7 @@ df = load_client_data()
 
 if menu == "Dashboard":
 
-    st.title("📋 ITR Client Management System")
+    st.title("📋 SKCS Client Management System")
 
     active_df = df[
         df["Status of Work"]
