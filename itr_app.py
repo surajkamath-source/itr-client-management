@@ -348,9 +348,7 @@ elif menu == "Client List":
 
 
 # =====================
-
 # EDIT CLIENT
-
 # =====================
 
 elif menu == "Edit Client":
@@ -461,6 +459,40 @@ elif menu == "Edit Client":
         index=assigned_index
     )
     
+    # =====================
+    # FEE HISTORY
+    # =====================
+    
+    st.subheader("💰 Fee History")
+    
+    f1, f2, f3, f4 = st.columns(4)
+    
+    with f1:
+        st.metric(
+            "FY 2024-25",
+            f"₹{row.get('FY 2024 25 Fees', 0)}"
+        )
+    
+    with f2:
+        st.metric(
+            "FY 2023-24",
+            f"₹{row.get('FY 2023 24 Fees2', 0)}"
+        )
+    
+    with f3:
+        st.metric(
+            "FY 2022-23",
+            f"₹{row.get('FY 2022 23 Fees2', 0)}"
+        )
+    
+    with f4:
+        st.metric(
+            "FY 2021-22",
+            f"₹{row.get('FY 2021 22 Fees', 0)}"
+        )
+    
+    st.divider()
+
     proposed_fee = st.number_input(
         "Proposed Fee",
         min_value=0.0,
