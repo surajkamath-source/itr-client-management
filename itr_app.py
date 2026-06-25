@@ -1184,14 +1184,13 @@ elif menu == "Billing":
         )
     )
     
-
     invoice_pdf = generate_invoice_pdf(
-    client,
-    invoice_no,
-    proposed,
-    remarks
+        client,
+        invoice_no,
+        proposed,
+        remarks
     )
-
+    
     st.download_button(
         "📄 Download Invoice",
         invoice_pdf,
