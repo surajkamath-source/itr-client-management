@@ -230,7 +230,7 @@ def generate_invoice_pdf(
 
     elements.append(
         Paragraph(
-            "<b>For SKCS & CO.</b>",
+            "<b>For S K Consultancy Services</b>",
             styles["Normal"]
         )
     )
