@@ -67,21 +67,21 @@ def generate_invoice_pdf(
 
     elements.append(
         Paragraph(
-            "<b>SKCS & CO.</b>",
+            "<b>S K Consultancy Services</b>",
             styles["Title"]
         )
     )
 
     elements.append(
         Paragraph(
-            "Chartered Accountants",
+            "One roof for accounts, tax and compliances",
             styles["Normal"]
         )
     )
 
     elements.append(
         Paragraph(
-            "Email: yourmail@gmail.com | Mobile: 9876543210",
+            "Email: consultants.skcs@gmail.com | Mobile: +91 81978 39824",
             styles["Normal"]
         )
     )
@@ -1184,10 +1184,16 @@ elif menu == "Billing":
         )
     )
     
+    remarks = st.text_area(
+        "Invoice Remarks",
+        value=""
+    )
+    
     invoice_pdf = generate_invoice_pdf(
         client,
         invoice_no,
-        proposed
+        proposed,
+        remarks
     )
     
     st.download_button(
