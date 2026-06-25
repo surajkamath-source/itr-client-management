@@ -11,53 +11,247 @@ from google_sheet_functions import (
     load_receipt_history
 )
 
-from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.units import mm
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer,
+    Image
+)
+
+from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
+import os
 
 def generate_invoice_pdf(
-        client_name,
-        invoice_no,
-        amount
-    ):
-    
-        buffer = BytesIO()
-    
-        pdf = canvas.Canvas(buffer)
-    
-        pdf.drawString(
-            100,
-            800,
-            "S K Consultancy Services"
-        )
-    
-        pdf.drawString(
-            100,
-            770,
-            f"Invoice : {invoice_no}"
-        )
-    
-        pdf.drawString(
-            100,
-            740,
-            f"Client : {client_name}"
-        )
-    
-        pdf.drawString(
-            100,
-            710,
-            f"Amount : ₹{amount:,.0f}"
-        )
-    
-        pdf.save()
-    
-        buffer.seek(0)
-    
-        return buffer
+    client_name,
+    invoice_no,
+    amount,
+    remarks=""
+):
 
-st.set_page_config(
-    page_title="ITR Client Tracker",
-    layout="wide"
-)
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(
+        buffer,
+        rightMargin=20,
+        leftMargin=20,
+        topMargin=20,
+        bottomMargin=20
+    )
+
+    styles = getSampleStyleSheet()
+
+    elements = []
+
+    # =====================
+    # LOGO
+    # =====================
+
+    if os.path.exists("logo.png"):
+
+        logo = Image(
+            "logo.png",
+            width=40 * mm,
+            height=40 * mm
+        )
+
+        elements.append(logo)
+
+    # =====================
+    # FIRM HEADER
+    # =====================
+
+    elements.append(
+        Paragraph(
+            "<b>SKCS & CO.</b>",
+            styles["Title"]
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            "Chartered Accountants",
+            styles["Normal"]
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            "Email: yourmail@gmail.com | Mobile: 9876543210",
+            styles["Normal"]
+        )
+    )
+
+    elements.append(Spacer(1, 12))
+
+    # =====================
+    # INVOICE TITLE
+    # =====================
+
+    elements.append(
+        Paragraph(
+            "<b>INVOICE</b>",
+            styles["Heading1"]
+        )
+    )
+
+    elements.append(Spacer(1, 10))
+
+    # =====================
+    # INVOICE DETAILS
+    # =====================
+
+    details = [
+        ["Invoice No", invoice_no],
+        ["Client Name", client_name],
+        ["Invoice Date", pd.Timestamp.today().strftime("%d-%m-%Y")]
+    ]
+
+    table = Table(
+        details,
+        colWidths=[120, 300]
+    )
+
+    table.setStyle(
+        TableStyle([
+            ("GRID",(0,0),(-1,-1),1,colors.black),
+            ("BACKGROUND",(0,0),(0,-1),colors.lightgrey),
+            ("FONTNAME",(0,0),(-1,-1),"Helvetica")
+        ])
+    )
+
+    elements.append(table)
+
+    elements.append(Spacer(1, 15))
+
+    # =====================
+    # BILL DETAILS
+    # =====================
+
+    bill_data = [
+        [
+            "Particulars",
+            "Amount (₹)"
+        ],
+        [
+            "Professional Fees for Income Tax Return / Consultancy Services",
+            f"{amount:,.2f}"
+        ]
+    ]
+
+    bill_table = Table(
+        bill_data,
+        colWidths=[350,120]
+    )
+
+    bill_table.setStyle(
+        TableStyle([
+            ("GRID",(0,0),(-1,-1),1,colors.black),
+            ("BACKGROUND",(0,0),(-1,0),colors.lightgrey),
+            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),
+            ("ALIGN",(1,1),(1,-1),"RIGHT")
+        ])
+    )
+
+    elements.append(bill_table)
+
+    elements.append(Spacer(1, 15))
+
+    # =====================
+    # TOTAL
+    # =====================
+
+    total_table = Table(
+        [
+            [
+                "TOTAL",
+                f"₹ {amount:,.2f}"
+            ]
+        ],
+        colWidths=[350,120]
+    )
+
+    total_table.setStyle(
+        TableStyle([
+            ("GRID",(0,0),(-1,-1),1,colors.black),
+            ("BACKGROUND",(0,0),(-1,-1),colors.lightgrey),
+            ("FONTNAME",(0,0),(-1,-1),"Helvetica-Bold"),
+            ("ALIGN",(1,0),(1,0),"RIGHT")
+        ])
+    )
+
+    elements.append(total_table)
+
+    elements.append(Spacer(1, 15))
+
+    # =====================
+    # REMARKS
+    # =====================
+
+    if remarks:
+
+        elements.append(
+            Paragraph(
+                "<b>Remarks:</b>",
+                styles["Heading3"]
+            )
+        )
+
+        elements.append(
+            Paragraph(
+                remarks,
+                styles["Normal"]
+            )
+        )
+
+        elements.append(Spacer(1, 10))
+
+    # =====================
+    # DECLARATION
+    # =====================
+
+    elements.append(
+        Paragraph(
+            "We are not registered under GST. "
+            "Hence GST is not applicable on this invoice.",
+            styles["Italic"]
+        )
+    )
+
+    elements.append(Spacer(1, 30))
+
+    # =====================
+    # SIGNATURE
+    # =====================
+
+    elements.append(
+        Paragraph(
+            "<b>For SKCS & CO.</b>",
+            styles["Normal"]
+        )
+    )
+
+    elements.append(Spacer(1, 40))
+
+    elements.append(
+        Paragraph(
+            "Authorised Signatory",
+            styles["Normal"]
+        )
+    )
+
+    doc.build(elements)
+
+    pdf = buffer.getvalue()
+
+    buffer.close()
+
+    return pdf
+        
 
 # =====================
 # LOGIN
@@ -990,17 +1184,21 @@ elif menu == "Billing":
         )
     )
     
+
     invoice_pdf = generate_invoice_pdf(
-        client,
-        invoice_no,
-        proposed
+    client,
+    invoice_no,
+    proposed,
+    remarks
     )
-    
+
     st.download_button(
         "📄 Download Invoice",
         invoice_pdf,
-        file_name=f"{invoice_no}.pdf"
+        file_name=f"{invoice_no}.pdf",
+        mime="application/pdf"
     )
+ 
     received = float(
         pd.to_numeric(
             row.get(
