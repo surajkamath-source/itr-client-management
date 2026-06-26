@@ -55,7 +55,7 @@ def generate_invoice_pdf(
 
         logo = Image(
             "JAI_SHREE_RAM_LOGO4.png",
-            width=40 * mm,
+            width=80 * mm,
             height=40 * mm
         )
 
