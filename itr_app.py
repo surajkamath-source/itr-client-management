@@ -67,14 +67,14 @@ def generate_invoice_pdf(
 
     elements.append(
         Paragraph(
-            "<b>S K Consultancy Services</b>",
+            "<b>One roof for accounts, taxation and allied services</b>",
             styles["Title"]
         )
     )
 
     elements.append(
         Paragraph(
-            "One roof for accounts, tax and compliances",
+            "Double Tank Road, Keralapura - 573 136. Hassan District",
             styles["Normal"]
         )
     )
