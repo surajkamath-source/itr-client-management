@@ -51,10 +51,10 @@ def generate_invoice_pdf(
     # LOGO
     # =====================
 
-    if os.path.exists("logo.png"):
+    if os.path.exists("JAI_SHREE_RAM_LOGO4.png"):
 
         logo = Image(
-            "logo.png",
+            "JAI_SHREE_RAM_LOGO4.png",
             width=40 * mm,
             height=40 * mm
         )
