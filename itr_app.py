@@ -378,14 +378,29 @@ if menu == "Dashboard":
             == "inactive"
         ]
     )
-
-    c1,c2,c3,c4,c5 = st.columns(5)
+    
+    bill_pending_clients = len(
+        df[
+            df["Status of Work"]
+            == "Bill Pending"
+        ]
+    )
+    
+    completed_clients = len(
+        df[
+            df["Status of Work"]
+            == "Completed"
+        ]
+    )
+    c1,c2,c3,c4,c5,c6,c7 = st.columns(7)
 
     c1.metric("Active Clients", total_clients)
     c2.metric("Pending", pending_returns)
     c3.metric("Filed", filed_returns)
     c4.metric("e-Verified", everified_returns)
     c5.metric("Inactive", inactive_clients)
+    c6.metric("Bill Pending", bill_pending_clients)
+    c7.metric("Completed", completed_clients)
 
     st.divider()
 
